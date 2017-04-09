@@ -121,6 +121,25 @@ void brake()
   analogWrite(motorRightPwm, 0);
 }
 
+void setMotor(int motorPin,int dirPin, double power){
+  if (power > 1){
+    power = 1;
+  }
+  else if (power < -1){
+    power = -1;
+  }
+  
+  if (power > 0){
+    digitalWrite(dirPin,HIGH);
+  }
+  else{
+    digitalWrite(dirPin,LOW);
+  }
+  
+  analogWrite(motorPin, abs(power)*255);
+}
+
+
 //ULTRASONIC FUNCTIONS
 void checkLeftUltra(unsigned int dist)
 {
