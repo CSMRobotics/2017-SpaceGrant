@@ -140,6 +140,30 @@ void checkRightUltra(unsigned int dist)
   }
 }
 
+// IMPROVED OBJECT AVOIDANCE ALGORITHM:
+byte state() {
+  int threshold = 40;
+  byte event;
+
+  if (sonarFront.ping_cm() > threshold) {
+    event += 1;
+  }
+  if (sonarLeft.ping_cm() > threshold) {
+    event +=2;
+  }
+  if (sonarRight.ping_cm() > threshold) {
+    event +=4;
+  }
+  return event;
+}
+
+void avoid(byte event) {
+  switch(event) {
+    case 1: // front sensor triggered
+    
+  }
+}
+
 //IMU Functions
 void updateIMU(){
   if (imu.gyroAvailable()){
