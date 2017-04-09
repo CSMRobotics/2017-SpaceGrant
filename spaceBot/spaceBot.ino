@@ -2,6 +2,14 @@
 // Motor control on Arduino
 // Currently moves and has ultrasonics.
 #include <NewPing.h>
+#include <Wire.h>
+#include <SPI.h>
+#include <SparkFunLSM9DS1.h>
+// The Sparkfun Library can be found here:
+// https://github.com/sparkfun/SparkFun_LSM9DS1_Arduino_Library
+
+// The New Ping Library Can be found here:
+//https://bitbucket.org/teckel12/arduino-new-ping/downloads/
 
 //Ultrasonic pins and max distance they can read
 #define TRIGGER_PIN_LEFT 7
@@ -9,6 +17,13 @@
 #define TRIGGER_PIN_RIGHT 5
 #define ECHO_PIN_RIGHT 4
 #define MAX_DISTANCE 400
+
+//Magnometer Declination
+#define DECLINATION -8.58
+// http://www.ngdc.noaa.gov/geomag-web/#declination
+#define LSM9DS1_M  0x1E // Would be 0x1C if SDO_M is LOW
+#define LSM9DS1_AG  0x6B // Would be 0x6A if SDO_AG is LOW
+
 
 //Distance we want to alert robot
 #define HITTING_DISTANCE 15
@@ -23,6 +38,8 @@ int motorRightDir = 9;
 int motorLeftPwm = 10;
 int motorRightPwm = 11;
 
+LSM9DS1 imu;
+
 void setup()
 {
   Serial.begin(115200);
@@ -31,6 +48,10 @@ void setup()
   pinMode(motorRightDir, OUTPUT);
   pinMode(motorLeftPwm, OUTPUT);
   pinMode(motorRightPwm, OUTPUT);
+
+  imu.settings.device.commInterface = IMU_MODE_I2C;
+  imu.settings.device.mAddress = LSM9DS1_M;
+  imu.settings.device.agAddress = LSM9DS1_AG;
 }
 
 void loop()
@@ -106,9 +127,42 @@ void checkLeftUltra(unsigned int dist)
 
 void checkRightUltra(unsigned int dist)
 {
-  while (distanceR <= HITTING_DISTANCE)
+  while (dist <= HITTING_DISTANCE)
   {
     leftward();
     dist = sonarRight.ping_cm();
   }
 }
+
+//IMU Functions
+void updateIMU(){
+  if (imu.gyroAvailable()){
+    imu.readGyro();  
+  }
+  if ( imu.accelAvailable()){
+    imu.readAccel();
+  }
+  if ( imu.magAvailable()){
+    imu.readMag();
+  }
+}
+
+float getIMUHeading(){
+  updateIMU();
+  float heading;
+  if (imu.my == 0)
+    heading = (imu.mx < 0) ? PI : 0;
+  else
+    heading = atan2(imu.mx, imu.my);
+    
+  heading -= DECLINATION * PI / 180;
+  
+  if (heading > PI) heading -= (2 * PI);
+  else if (heading < -PI) heading += (2 * PI);
+  else if (heading < 0) heading += 2 * PI;
+  
+  // Convert everything from radians to degrees:
+  heading *= 180.0 / PI;
+  return heading;
+}
+
