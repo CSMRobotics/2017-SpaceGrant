@@ -1,6 +1,7 @@
-// Ann Gustafson - Spring 2017
+// Ann Gustafson, Colby Moxham, Nhan Tran, John Wiens - Spring 2017
 // Motor control on Arduino
 // Currently moves and has ultrasonics.
+// Also has IMU.
 #include <NewPing.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -12,6 +13,10 @@
 //https://bitbucket.org/teckel12/arduino-new-ping/downloads/
 
 //Ultrasonic pins and max distance they can read
+#define SONAR_NUM 3 //Number of ultrasonics
+#PING_INTERVAL 33
+#define TRIGGER_PIN_FRONT 3
+#define ECHO_PIN_FRONT 2
 #define TRIGGER_PIN_LEFT 7
 #define ECHO_PIN_LEFT 6
 #define TRIGGER_PIN_RIGHT 5
@@ -31,6 +36,7 @@
 //The left and right ultrasonics
 NewPing sonarLeft(TRIGGER_PIN_LEFT, ECHO_PIN_LEFT, MAX_DISTANCE);
 NewPing sonarRight(TRIGGER_PIN_RIGHT, ECHO_PIN_RIGHT, MAX_DISTANCE);
+NewPing sonarFront(TRIGGER_PIN_FRONT, ECHO_PIN_FRONT, MAX_DISTANCE);
 
 //Motor direction and PWM pins
 int motorLeftDir = 8;
@@ -165,4 +171,5 @@ float getIMUHeading(){
   heading *= 180.0 / PI;
   return heading;
 }
+
 
