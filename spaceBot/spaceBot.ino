@@ -30,7 +30,7 @@
 #define LSM9DS1_AG  0x6B // Would be 0x6A if SDO_AG is LOW
 
 //Distance we want to alert robot
-#define HITTING_DISTANCE 15
+#define HITTING_DISTANCE 40
 
 unsigned long pingTimer[SONAR_NUM]; //When each pings
 unsigned int cm[SONAR_NUM]; //Store ping distances
