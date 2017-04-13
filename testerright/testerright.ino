@@ -180,8 +180,9 @@ void oneSensorCycle() { // Do something with the results.
     Serial.print(cm[i]);
     Serial.print("cm ");
   }
+}
 
-void checkLeftUltra(unsigned int dist)
+/*void checkLeftUltra(unsigned int dist)
 {
   while (dist <= HITTING_DISTANCE)
   {
@@ -198,7 +199,7 @@ void checkRightUltra(unsigned int dist)
     dist = sonarRight.ping_cm();
   }
 }
-
+*/
 //IMU Functions
 void updateIMU(){
   if (imu.gyroAvailable()){

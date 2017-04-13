@@ -91,7 +91,7 @@ void loop()
       checkRightUltra(distanceR);
       distanceL = sonarLeft.ping_cm();
   }*/
- /* for (uint8_t i = 0; i < SONAR_NUM; i++) {
+  for (uint8_t i = 0; i < SONAR_NUM; i++) {
     if (millis() >= pingTimer[i]) {
       pingTimer[i] += PING_INTERVAL * SONAR_NUM;
       if (i == 0 && currentSensor == SONAR_NUM - 1)
@@ -101,10 +101,8 @@ void loop()
       cm[currentSensor] = 0;
       sonar[currentSensor].ping_timer(echoCheck);
     }
-  
+  }
   forward();
-*/
-rightward();
 }
 
 //MOVEMENT FUNCTIONS
@@ -180,8 +178,9 @@ void oneSensorCycle() { // Do something with the results.
     Serial.print(cm[i]);
     Serial.print("cm ");
   }
+}
 
-void checkLeftUltra(unsigned int dist)
+/*void checkLeftUltra(unsigned int dist)
 {
   while (dist <= HITTING_DISTANCE)
   {
@@ -197,7 +196,7 @@ void checkRightUltra(unsigned int dist)
     leftward();
     dist = sonarRight.ping_cm();
   }
-}
+}*/
 
 //IMU Functions
 void updateIMU(){
