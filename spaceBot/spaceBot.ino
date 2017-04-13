@@ -176,7 +176,7 @@ void oneSensorCycle() { // Do something with the results.
     Serial.print(i);
     Serial.print("=");
     Serial.print(cm[i]);
-    Serial.print("cm ");
+    Serial.print("cm \n");
   }
 }
 
