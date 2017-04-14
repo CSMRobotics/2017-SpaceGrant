@@ -36,17 +36,18 @@ unsigned long pingTimer[SONAR_NUM]; //When each pings
 unsigned int cm[SONAR_NUM]; //Store ping distances
 uint8_t currentSensor = 0; //Which sensor is currently going
 
-//The left and right ultrasonics
-//NewPing sonarLeft(TRIGGER_PIN_LEFT, ECHO_PIN_LEFT, MAX_DISTANCE);
-//NewPing sonarRight(TRIGGER_PIN_RIGHT, ECHO_PIN_RIGHT, MAX_DISTANCE);
-//NewPing sonarFront(TRIGGER_PIN_FRONT, ECHO_PIN_FRONT, MAX_DISTANCE);
-
 //Array of sensors
 NewPing sonar[SONAR_NUM] = {
     NewPing(TRIGGER_PIN_LEFT, ECHO_PIN_LEFT, MAX_DISTANCE),
     NewPing(TRIGGER_PIN_RIGHT, ECHO_PIN_RIGHT, MAX_DISTANCE),
     NewPing(TRIGGER_PIN_FRONT, ECHO_PIN_FRONT, MAX_DISTANCE)
   };
+
+//The heading of the beacon
+float beaHeading = 0;
+
+//The heading of the robot
+float currHeading = 0;
 
 //Motor direction and PWM pins
 int motorLeftDir = 8;
@@ -72,25 +73,15 @@ void setup()
   imu.settings.device.commInterface = IMU_MODE_I2C;
   imu.settings.device.mAddress = LSM9DS1_M;
   imu.settings.device.agAddress = LSM9DS1_AG;
+
+  currHeading = getIMUHeading();
 }
 
 void loop()
 {
-  delay(500);  //Not sure if we'll actually want the delay here
-  //The distances from the left and right sensors
- /* unsigned int distanceL = sonarLeft.ping_cm();
-  unsigned int distanceR = sonarRight.ping_cm();
-  
-  //This will check how close we are to the alotted distance from the object and
-  //change course accordingly
-  if (distanceL <= HITTING_DISTANCE || distanceR <= HITTING_DISTANCE)
-  {
-      brake();
-      checkLeftUltra(distanceL);
-      distanceR = sonarRight.ping_cm();
-      checkRightUltra(distanceR);
-      distanceL = sonarLeft.ping_cm();
-  }*/
+  currHeading = getIMUHeading();
+  delay(50);  //Not sure if we'll actually want the delay here
+  //This cycles through the sensor array on a timer and checks all the distances
   for (uint8_t i = 0; i < SONAR_NUM; i++) {
     if (millis() >= pingTimer[i]) {
       pingTimer[i] += PING_INTERVAL * SONAR_NUM;
@@ -105,7 +96,29 @@ void loop()
 //  Serial.print("Left");Serial.println(sonar[0].ping_cm());
 //  Serial.print("Right");Serial.println(sonar[1].ping_cm());
 //  Serial.print("Front");Serial.println(sonar[2].ping_cm());
-  forward();
+  if (currHeading > beaHeading - 10 && currHeading < beaHeading + 10)
+    {
+      if (cm[2] > HITTING_DISTANCE || cm[2] == 0) //Keep going forward if bigger than hitting distance
+        forward();
+      else
+      {
+        //Will turn either left or right depending on which is more clear
+        if (cm[0] >= cm[1] || cm[0] == 0)
+          leftward();
+        else rightward();
+      }
+    }
+  else if (cm[2] > HITTING_DISTANCE || cm[2] == 0)
+  {
+    if () //Check if curr to curr + 180 has beacon in it 
+    {
+      rightward();
+    }
+    else
+    {
+      leftward();
+    }
+  }
 }
 
 //MOVEMENT FUNCTIONS
