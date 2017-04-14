@@ -76,7 +76,7 @@ void setup()
 
 void loop()
 {
-  delay(50);  //Not sure if we'll actually want the delay here
+  delay(500);  //Not sure if we'll actually want the delay here
   //The distances from the left and right sensors
  /* unsigned int distanceL = sonarLeft.ping_cm();
   unsigned int distanceR = sonarRight.ping_cm();
@@ -98,10 +98,13 @@ void loop()
         oneSensorCycle(); // Do something with results.
       sonar[currentSensor].timer_stop();
       currentSensor = i;
-      cm[currentSensor] = 0;
+      cm[currentSensor] = sonar[currentSensor].ping_cm();
       sonar[currentSensor].ping_timer(echoCheck);
     }
   }
+//  Serial.print("Left");Serial.println(sonar[0].ping_cm());
+//  Serial.print("Right");Serial.println(sonar[1].ping_cm());
+//  Serial.print("Front");Serial.println(sonar[2].ping_cm());
   forward();
 }
 
@@ -178,6 +181,7 @@ void oneSensorCycle() { // Do something with the results.
     Serial.print(cm[i]);
     Serial.print("cm \n");
   }
+//  Serial.println(cm[0]);
 }
 
 /*void checkLeftUltra(unsigned int dist)
