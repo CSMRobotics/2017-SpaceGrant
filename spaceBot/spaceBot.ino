@@ -110,15 +110,20 @@ void loop()
     }
   else if (cm[2] > HITTING_DISTANCE || cm[2] == 0)
   {
-    if () //Check if curr to curr + 180 has beacon in it 
+    float currPlus = currHeading + 180;
+    if(currPlus >= 360)
+      currPlus -= 360;
+    if (currPlus > currHeading) //Check if curr to curr + 180 has beacon in it 
     {
+      if (currHeading <= beaHeading && currPlus >= beaHeading)
+        rightward();
+      else leftward();
+    }
+    else if (currPlus <= beaHeading && currHeading >= beaHeading)
       rightward();
-    }
-    else
-    {
-      leftward();
-    }
+    else leftward();
   }
+  forward();
 }
 
 //MOVEMENT FUNCTIONS
