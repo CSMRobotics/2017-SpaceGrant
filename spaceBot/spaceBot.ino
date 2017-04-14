@@ -123,7 +123,9 @@ void loop()
       rightward();
     else leftward();
   }
+  else forward(); //Fix this later...
   forward();
+  Serial.println("Moving forward?");
 }
 
 //MOVEMENT FUNCTIONS
