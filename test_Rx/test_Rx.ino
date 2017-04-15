@@ -13,7 +13,7 @@ void loop()
   delay(500);
 }
 
-int getHeading(){
+float getHeading(){
   Wire.requestFrom(8, 2);    // request 6 bytes from slave device #8
   byte MSB = Wire.read();
   byte LSB = Wire.read();
