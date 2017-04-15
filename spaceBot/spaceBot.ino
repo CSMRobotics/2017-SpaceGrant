@@ -30,7 +30,7 @@
 #define LSM9DS1_AG  0x6B // Would be 0x6A if SDO_AG is LOW
 
 //Distance we want to alert robot
-#define HITTING_DISTANCE 40
+#define HITTING_DISTANCE 60
 
 unsigned long pingTimer[SONAR_NUM]; //When each pings
 unsigned int cm[SONAR_NUM]; //Store ping distances
@@ -96,7 +96,7 @@ void setup()
 
 void loop()
 {
-  currHeading = getIMUHeading();
+  currHeading = abs(getIMUHeading());
   //delay(50);  //Not sure if we'll actually want the delay here
   //This cycles through the sensor array on a timer and checks all the distances
   for (uint8_t i = 0; i < SONAR_NUM; i++) {
@@ -110,93 +110,95 @@ void loop()
       sonar[currentSensor].ping_timer(echoCheck);
     }
   }
-//  Serial.print("Left");Serial.println(sonar[0].ping_cm());
-//  Serial.print("Right");Serial.println(sonar[1].ping_cm());
-//  Serial.print("Front");Serial.println(sonar[2].ping_cm());
-//  if (currHeading > beaHeading - 10 && currHeading < beaHeading + 10)
-//    {
-//      if (cm[2] > HITTING_DISTANCE || cm[2] == 0) //Keep going forward if bigger than hitting distance
-//        forward();
-//      else
-//      {
-//        //Will turn either left or right depending on which is more clear
-//        if (cm[0] >= cm[1] || cm[0] == 0)
-//          leftward();
-//        else rightward();
-//      }
-//    }
-//  else if (cm[2] > HITTING_DISTANCE || cm[2] == 0)
-//  {
-//    float currPlus = currHeading + 180;
-//    if(currPlus >= 360)
-//      currPlus -= 360;
-//    if (currPlus > currHeading) //Check if curr to curr + 180 has beacon in it 
-//    {
-//      if (currHeading <= beaHeading && currPlus >= beaHeading)
-//        rightward();
-//      else leftward();
-//    }
-//    else if (currPlus <= beaHeading && currHeading >= beaHeading)
-//      rightward();
-//    else leftward();
-//  }
-//  else forward(); //Fix this later...
-//  forward();
-  //Serial.println("Moving forward?");
 
-    //if (cm[0] > HITTING_DISTANCE) {
-      
-    //  leftward();
-    //}
 
 Serial.print("Turn Target:  ");
 Serial.print(turn_target);
 Serial.print("Heading:   ");
 Serial.println(currHeading);
-if (current_action == 1){
-  if (cm[2] > HITTING_DISTANCE || cm[2] == 0){
-
-    //ADD Last adjust time to the beacon
-    //if(abs(currHeading- beaHeading) < 10){
-      forward();
-    //}
-    //else{
-     // current_action = 1;
-    //}
+  if (current_action == 1){
+    if (cm[2] > HITTING_DISTANCE || cm[2] == 0
+      && cm[0] > 20 || cm[0] == 0
+      && cm[1] > 20 || cm[1] == 0
+      ){
+  
+      //ADD Last adjust time to the beacon
+      //if(abs(currHeading- beaHeading) > 10 && millis() - last_adjust_time>beacon_adjust_delay ){
+        //current_action =1;
+      //}
+      //else{
+        forward();
+      //}
+      }
+      else{
+        current_action = 3;
+      }
+    }
+    else if(current_action == 2){
+      turn_beacon();
+    }
+    else if(current_action == 3){
+        dodge();
+    }
+    else{
+      brake();
+    }
   }
-  else{
-    current_action = 3;
-  }
-}
-else if(current_action == 2){
-  //TURN towards beacon
-}
-else if(current_action == 3){
-  //TODO check if left or right is better
+void dodge(){
   if( !is_turning){
-    turn_target = currHeading + 90;
-    if (turn_target > 360){
-      turn_target = turn_target - 360;
+    if(cm[0] > cm[1] || cm[0] == 0){ 
+      turn_target = currHeading + 45;
+      if (turn_target > 360){
+        turn_target = turn_target - 360;
+      }
+    }
+    else{
+      turn_target = currHeading -45;
+      if (turn_target < 0){
+        turn_target = turn_target +360;
+      }
     }
    is_turning = true;
   }
-  leftward();
-  if (abs(turn_target - currHeading) < 10){
+  if (turn_target > currHeading && abs(turn_target-currHeading) > 180 || 
+      turn_target < currHeading && abs(turn_target-currHeading) < 180){
+    Serial.println("Left");
+    leftward();
+  }
+  else{
+    Serial.println("Right");
+    rightward();
+  }
+  
+  if (abs(turn_target - currHeading) < 5){
     is_turning = false;
     turn_target = 0;
     current_action = 1;
+    last_adjust_time = millis();
+  }  
+}
+
+void turn_beacon(){
+    if( !is_turning){
+      turn_target = 0; //TODO DIRECTION TOWARDS BEACON
+     is_turning = true;
+    }
+    if (turn_target > currHeading && abs(turn_target-currHeading) > 180 || 
+        turn_target < currHeading && abs(turn_target-currHeading) < 180){
+      Serial.println("Left");
+      leftward();
+    }
+    else{
+      Serial.println("Right");
+      rightward();
+    }
+    
+    if (abs(turn_target - currHeading) < 5){
+      is_turning = false;
+      turn_target = 0;
+      current_action = 1;
+      last_adjust_time = millis();
   }
-
-   
-  
-  //Turn to dodge obstacle
-}
-else{
-  brake();
-  
-}
- 
-
 }
     
 
